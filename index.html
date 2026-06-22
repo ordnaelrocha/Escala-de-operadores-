@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escala de Operadores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-sand: #f5f2eb;
+            --card-sand: #eaddca;
+            --primary-brown: #655447;
+            --accent-brown: #8c7662;
+            --text-dark: #3e352e;
+            --text-light: #faf8f5;
+            --success: #556b2f;
+            --danger: #a64444;
+            --warning: #b8860b;
+            --info-blue: #2b5c8f;
+            --regular-orange: #d9825b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-sand);
+            color: var(--text-dark);
+            padding: 20px;
+            font-size: 19px; 
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .header-app {
+            background: linear-gradient(135deg, var(--primary-brown), var(--accent-brown));
+            color: var(--text-light);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .header-app h1 { font-size: 2.6rem; margin-bottom: 8px; font-weight: 700; }
+        .credits { display: flex; justify-content: center; gap: 30px; font-size: 1.25rem; opacity: 0.95; }
+        .credits span strong { color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+
+        .tabs-nav { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn {
+            background-color: #e4dcce;
+            color: var(--text-dark);
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            white-space: nowrap;
+        }
+        .tab-btn.active { background-color: var(--primary-brown); color: var(--text-light); font-weight: 700; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: var(--card-sand);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            margin-bottom: 25px;
+        }
+        .card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+            color: var(--primary-brown);
+            border-bottom: 2px solid rgba(101, 84, 71, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .input-group { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+        input, select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 1px solid rgba(0,0,0,0.15);
+            border-radius: 6px;
+            background-color: var(--text-light);
+            color: var(--text-dark);
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--primary-brown);
+            color: var(--text-light);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background-color: var(--accent-brown); }
+        button.btn-success { background-color: var(--success); }
+        button.btn-danger { background-color: var(--danger); }
+        button.btn-blue { background-color: var(--info-blue); }
+
+        .tags-container { display: flex; flex-direction: column; gap: 10px; max-height: 450px; overflow-y: auto; padding: 5px; }
+        .manager-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .manager-info { display: flex; gap: 12px; align-items: center; font-size: 1.15rem; flex: 1; min-width: 250px; }
+        .status-badge {
+            font-size: 0.9rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .status-active { background-color: var(--success); }
+        .status-absent { background-color: var(--danger); }
+        .status-vacation { background-color: var(--warning); }
+
+        .tag {
+            background-color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            border: 1px solid #ccc;
+        }
+        .tag span { cursor: pointer; color: var(--danger); font-weight: bold; }
+
+        .capture-area { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .section-title { font-size: 1.5rem; color: var(--primary-brown); margin: 25px 0 15px 0; font-weight: 700; border-left: 5px solid var(--accent-brown); padding-left: 10px; }
+        .operator-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        
+        .operator-item-card {
+            background-color: var(--text-light);
+            border: 1px solid #e0d9d0;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .operator-item-card.reg-card { border-left: 5px solid var(--regular-orange); background-color: #fffaf7; }
+        .operator-item-card.ps-card { border-left: 5px solid var(--accent-brown); background-color: #faf6f0; }
+        .operator-item-card.mult-card { border-left: 5px solid var(--info-blue); background-color: #f0f4fa; }
+        
+        .operator-name-title { font-size: 1.3rem; font-weight: 700; color: var(--primary-brown); }
+        .grid-select { padding: 8px; font-size: 1.1rem; font-weight: 500; border-radius: 5px; background-color: #fff; border: 1px solid #ccc; }
+        .empty-grid-msg { grid-column: 1 / -1; text-align: center; color: #888; padding: 30px; font-size: 1.15rem; background: #f9f9f9; border-radius: 8px; border: 1px dashed #ddd; }
+
+        .history-list { max-height: 550px; overflow-y: auto; list-style: none; display: flex; flex-direction: column; gap: 20px; }
+        .history-card { background: #faf8f5; border: 1px solid #e2dacb; padding: 20px; border-radius: 8px; position: relative; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; font-size: 1.2rem; font-weight: 700; color: var(--primary-brown); margin-bottom: 12px; border-bottom: 1px dashed #cdc3b2; padding-bottom: 6px; padding-right: 110px; }
+        .history-delete-btn { position: absolute; top: 15px; right: 15px; padding: 6px 14px; font-size: 1rem; border-radius: 4px; font-weight: 600; }
+        .history-details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; font-size: 1.05rem; }
+        .history-detail-item { background: #fff; padding: 6px 10px; border-radius: 4px; border: 1px solid #eee; }
+
+        .actions-bar { display: flex; gap: 15px; margin-bottom: 20px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+        .date-picker-container { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--primary-brown); }
+        .date-picker-container input { max-width: 180px; padding: 10px; }
+        .chart-container { position: relative; height: 380px; width: 100%; }
+
+        /* ESTILOS ESPECÍFICOS PARA O APLICATIVO ANDROID */
+        body.is-android-app { padding: 10px; font-size: 14px; }
+        body.is-android-app .header-app { padding: 12px; margin-bottom: 15px; border-radius: 8px; }
+        body.is-android-app .header-app h1 { font-size: 1.5rem; }
+        body.is-android-app .credits { font-size: 0.9rem; gap: 15px; }
+        body.is-android-app .tab-btn { padding: 8px 12px; font-size: 0.85rem; border-radius: 6px 6px 0 0; }
+        body.is-android-app .card { padding: 12px; margin-bottom: 15px; border-radius: 8px; }
+        body.is-android-app .card h3 { font-size: 1.1rem; margin-bottom: 10px; }
+        body.is-android-app input, body.is-android-app select, body.is-android-app button { padding: 8px; font-size: 0.9rem; min-width: 100px; }
+        body.is-android-app .date-picker-container { font-size: 0.9rem; }
+        body.is-android-app .date-picker-container input { max-width: 130px; padding: 6px; }
+        body.is-android-app .capture-area { padding: 12px; border-radius: 8px; }
+        body.is-android-app .section-title { font-size: 1.1rem; margin: 15px 0 10px 0; }
+        body.is-android-app .operator-grid { gap: 10px; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); margin-bottom: 15px; }
+        body.is-android-app .operator-item-card { padding: 10px; gap: 6px; }
+        body.is-android-app .operator-name-title { font-size: 1rem; }
+        body.is-android-app .grid-select { padding: 5px; font-size: 0.85rem; }
+        body.is-android-app .manager-info { font-size: 0.9rem; gap: 6px; }
+        body.is-android-app .status-badge { font-size: 0.75rem; padding: 2px 6px; }
+        body.is-android-app .history-header { font-size: 0.95rem; }
+        body.is-android-app .history-delete-btn { font-size: 0.8rem; padding: 4px 8px; }
+        body.is-android-app .history-detail-item { font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="header-app">
+        <h1>Escala de Operadores</h1>
+        <div class="credits">
+            <span>Desenvolvido por: <strong>Leandro Rocha</strong></span>
+            <span>Líder: <strong>André Rocha</strong></span>
+        </div>
+    </header>
+
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(event, 'tab-escala')">📋 Escala Atual</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-operadores')">👥 Gestão de Pessoal</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-funcoes')">⚙️ Funções</button>
+        <button class="tab-btn" onclick="switchTab(event, 'tab-graficos')">📊 Histórico & Gráficos</button>
+    </nav>
+
+    <div id="tab-escala" class="tab-content active">
+        <div class="actions-bar">
+            <div class="date-picker-container">
+                <label for="scale-date-input">📅 Data do Trabalho:</label>
+                <input type="date" id="scale-date-input">
+            </div>
+            <button class="btn-success" onclick="generateRandomScale()">🎲 Distribuir Sem Repetir</button>
+            <button id="btn-save-scale" class="btn-blue" onclick="saveCurrentScaleToHistory()" style="display: none;">💾 Salvar Escala no Histórico</button>
+            <button onclick="shareImage()">📸 Compartilhar Imagem</button>
+        </div>
+
+        <section class="capture-area" id="print-zone">
+            <h2 style="color: var(--primary-brown); margin-bottom: 20px; font-size: 1.6rem;" id="scale-date-title">Escala do Dia</h2>
+            
+            <div class="section-title">Equipe Regular (Sem Doca/Sorter)</div>
+            <div class="operator-grid" id="grid-regular">
+                <div class="empty-grid-msg">Clique em "Distribuir Sem Repetir" para gerar a escala.</div>
+            </div>
+
+            <div class="section-title">Equipe P.S. (Acesso Total)</div>
+            <div class="operator-grid" id="grid-ps">
+                <div class="empty-grid-msg">Clique em "Distribuir Sem Repetir" para gerar a escala.</div>
+            </div>
+
+            <div class="section-title">Multiplicadores (Acesso Total + Suporte)</div>
+            <div class="operator-grid" id="grid-multiplicador">
+                <div class="empty-grid-msg">Clique em "Distribuir Sem Repetir" para gerar a escala.</div>
+            </div>
+        </section>
+    </div>
+
+    <div id="tab-operadores" class="tab-content">
+        <div class="card">
+            <h3>Adicionar e Modificar Operador</h3>
+            <div class="input-group">
+                <input type="text" id="input-op-name" placeholder="Nome do operador">
+                <select id="select-op-type" style="max-width: 180px;">
+                    <option value="regular">Regular</option>
+                    <option value="ps">P.S.</option>
+                    <option value="multiplicador">Multiplicador</option>
+                </select>
+                <select id="select-op-status" style="max-width: 150px;">
+                    <option value="active">Ativo</option>
+                    <option value="absent">Ausente</option>
+                    <option value="vacation">Férias</option>
+                </select>
+                <button onclick="addOperator()">Adicionar</button>
+            </div>
+            <h4 style="margin-bottom: 15px; color: var(--primary-brown); font-size: 1.2rem;">Lista de Operadores Cadastrados:</h4>
+            <div class="tags-container" id="container-operators"></div>
+        </div>
+    </div>
+
+    <div id="tab-funcoes" class="tab-content">
+        <div class="card">
+            <h3>Adicionar Nova Função</h3>
+            <div class="input-group">
+                <input type="text" id="input-func-name" placeholder="Ex: Sorter, Doca...">
+                <button onclick="addFunction()">Adicionar</button>
+            </div>
+            <div class="tags-container" id="container-functions" style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+    </div>
+
+    <div id="tab-graficos" class="tab-content">
+        <div class="card">
+            <h3>Métricas & Linha do Tempo de Atuações</h3>
+            <div style="margin-bottom: 20px;">
+                <label for="chart-filter" style="font-weight: 600; font-size: 1.1rem;">Selecionar Operador:</label>
+                <select id="chart-filter" onchange="updateChart()" style="margin-left: 10px; display: inline-block; max-width: 300px;"></select>
+            </div>
+            <div class="chart-container">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Histórico de Escalas Detalhado (Quem ficou onde)</h3>
+            <div class="history-list" id="history-container">
+                <div style="color:#888; padding: 15px; text-align: center; font-size: 1.1rem;">Nenhuma escala salva no histórico.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(event, tabId) {
+        const contents = document.querySelectorAll('.tab-content');
+        contents.forEach(content => content.classList.remove('active'));
+
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+        if(tabId === 'tab-graficos') {
+            setTimeout(updateChart, 50);
+        }
+    }
+
+    const defaultOperators = [
+        { name: 'Leandro', type: 'regular', status: 'active' },
+        { name: 'Marquinho', type: 'regular', status: 'active' },
+        { name: 'Marcão', type: 'regular', status: 'active' },
+        { name: 'Andrea', type: 'regular', status: 'active' }, 
+        { name: 'Jamil', type: 'regular', status: 'active' },
+        { name: 'Ryan', type: 'regular', status: 'active' },
+        { name: 'Núbia', type: 'regular', status: 'active' },
+        { name: 'Raika', type: 'ps', status: 'active' },            
+        { name: 'Gustavo', type: 'ps', status: 'active' },          
+        { name: 'Luke', type: 'ps', status: 'active' }              
+    ];
+
+    const defaultFunctions = [
+        'Carregamento 1', 'Joker', 'Patola 1', 'Patola 2', 'Puxada periférico', 'Puxada Dedicado', 'Doca', 'Sorter', 'NT'
+    ];
+
+    let operators = JSON.parse(localStorage.getItem('v13_font_operators')) || defaultOperators;
+    let functions = JSON.parse(localStorage.getItem('v13_font_functions')) || defaultFunctions;
+    let historyLog = JSON.parse(localStorage.getItem('v13_font_history')) || [];
+    let statsTimeline = JSON.parse(localStorage.getItem('v13_font_timeline')) || {};
+    
+    let tempRegularAssignments = [];
+    let tempPsAssignments = [];
+    let tempMultAssignments = []; 
+    let tempScaleFullDate = "";
+    let chartInstance = null;
+
+    const functionColors = [
+        '#4a7c59', '#68809a', '#b8860b', '#a64444', '#7b68ee', 
+        '#d2691e', '#008080', '#cd5c5c', '#4682b4', '#9acd32', 
+        '#8a2be2', '#ff7f50', '#20b2aa', '#bc8f8f', '#da70d6'
+    ];
+
+    window.onload = function() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroidWebView = /Android/i.test(userAgent) && /wv/i.test(userAgent);
+        
+        if (isAndroidWebView) {
+            document.body.classList.add('is-android-app');
+        }
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('scale-date-input').value = today;
+
+        renderOperators();
+        renderFunctions();
+        renderHistory();
+        populateChartFilter();
+        updateChart();
+    };
+
+    function saveState() {
+        localStorage.setItem('v13_font_operators', JSON.stringify(operators));
+        localStorage.setItem('v13_font_functions', JSON.stringify(functions));
+        localStorage.setItem('v13_font_history', JSON.stringify(historyLog));
+        localStorage.setItem('v13_font_timeline', JSON.stringify(statsTimeline));
+    }
+
+    function renderOperators() {
+        const container = document.getElementById('container-operators');
+        container.innerHTML = '';
+        
+        operators.forEach((op, index) => {
+            const row = document.createElement('div');
+            row.className = 'manager-row';
+            
+            const badgeTxt = op.status === 'active' ? 'Ativo' : op.status === 'absent' ? 'Ausente' : 'Férias';
+            const badgeCls = op.status === 'active' ? 'status-active' : op.status === 'absent' ? 'status-absent' : 'status-vacation';
+
+            row.innerHTML = `
+                <div class="manager-info">
+                    <strong>${op.name}</strong> 
+                    <span class="status-badge ${badgeCls}">${badgeTxt}</span>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select onchange="changeType(${index}, this.value)" style="padding:6px; font-size:0.95rem; max-width:140px;">
+                        <option value="regular" ${op.type === 'regular' ? 'selected' : ''}>Regular</option>
+                        <option value="ps" ${op.type === 'ps' ? 'selected' : ''}>P.S.</option>
+                        <option value="multiplicador" ${op.type === 'multiplicador' ? 'selected' : ''}>Multiplicador</option>
+                    </select>
+                    <select onchange="changeStatus(${index}, this.value)" style="padding:6px; font-size:0.95rem; max-width:110px;">
+                        <option value="active" ${op.status === 'active' ? 'selected' : ''}>Ativo</option>
+                        <option value="absent" ${op.status === 'absent' ? 'selected' : ''}>Ausente</option>
+                        <option value="vacation" ${op.status === 'vacation' ? 'selected' : ''}>Férias</option>
+                    </select>
+                    <button onclick="removeOperator(${index})" style="background:var(--danger); padding:6px 12px; font-size:0.95rem;">&times;</button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function changeStatus(index, newStatus) {
+        operators[index].status = newStatus;
+        saveState();
+        renderOperators();
+    }
+
+    function changeType(index, newType) {
+        operators[index].type = newType;
+        saveState();
+        renderOperators();
+    }
+
+    function addOperator() {
+        const nameInput = document.getElementById('input-op-name');
+        const typeSelect = document.getElementById('select-op-type');
+        const statusSelect = document.getElementById('select-op-status');
+        const name = nameInput.value.trim();
+        
+        if(name) {
+            operators.push({ name: name, type: typeSelect.value, status: statusSelect.value });
+            nameInput.value = '';
+            saveState();
+            renderOperators();
+            populateChartFilter();
+        }
+    }
+
+    function removeOperator(index) {
+        operators.splice(index, 1);
+        saveState();
+        renderOperators();
+        populateChartFilter();
+    }
+
+    function renderFunctions() {
+        const container = document.getElementById('container-functions');
+        container.innerHTML = '';
+        functions.forEach((func, index) => {
+            const tag = document.createElement('div');
+            tag.className = 'tag';
+            tag.innerHTML = `${func} <span onclick="removeFunction(${index})">&times;</span>`;
+            container.appendChild(tag);
+        });
+    }
+
+    function addFunction() {
+        const funcInput = document.getElementById('input-func-name');
+        const name = funcInput.value.trim();
+        
+        if(name) {
+            functions.push(name);
+            funcInput.value = '';
+            saveState();
+            renderFunctions();
+        }
+    }
+
+    function removeFunction(index) {
+        functions.splice(index, 1);
+        saveState();
+        renderFunctions();
+    }
+
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateRandomScale() {
+        if(operators.length === 0 || functions.length === 0) {
+            alert("Por favor, cadastre operadores e funções primeiro.");
+            return;
+        }
+
+        const activeRegulars = operators.filter(o => o.type === 'regular' && o.status === 'active');
+        const activePsList = operators.filter(o => o.type === 'ps' && o.status === 'active');
+        const activeMultList = operators.filter(o => o.type === 'multiplicador' && o.status === 'active');
+
+        let regularFunctions = functions.filter(f => f.toLowerCase() !== 'doca' && f.toLowerCase() !== 'sorter');
+        let generalFunctions = [...functions];
+
+        let shuffledRegularFunc = shuffleArray(regularFunctions);
+        let shuffledPsFunc = shuffleArray(generalFunctions);
+        let shuffledMultFunc = shuffleArray(generalFunctions);
+
+        let shuffledRegulars = shuffleArray(activeRegulars);
+        let shuffledPs = shuffleArray(activePsList);
+        let shuffledMult = shuffleArray(activeMultList);
+
+        tempRegularAssignments = [];
+        tempPsAssignments = [];
+        tempMultAssignments = [];
+
+        const dateInputVal = document.getElementById('scale-date-input').value;
+        let formattedDate = "";
+        
+        if (dateInputVal) {
+            const parts = dateInputVal.split('-');
+            formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+            formattedDate = new Date().toLocaleDateString('pt-BR');
+        }
+
+        tempScaleFullDate = formattedDate;
+
+        shuffledRegulars.forEach((op) => {
+            let assignedFunc = "Apoio / Disponível";
+            if (shuffledRegularFunc.length > 0) {
+                assignedFunc = shuffledRegularFunc.pop();
+            }
+            tempRegularAssignments.push({ name: op.name, func: assignedFunc });
+        });
+
+        shuffledPs.forEach((op) => {
+            let assignedFunc = "Apoio / Disponível";
+            if (shuffledPsFunc.length > 0) {
+                assignedFunc = shuffledPsFunc.pop();
+            }
+            tempPsAssignments.push({ name: op.name, func: assignedFunc });
+        });
+
+        shuffledMult.forEach((op) => {
+            let assignedFunc = "Apoio / Disponível";
+            if (shuffledMultFunc.length > 0) {
+                assignedFunc = shuffledMultFunc.pop();
+            }
+            tempMultAssignments.push({ name: op.name, func: assignedFunc });
+        });
+
+        document.getElementById('scale-date-title').innerText = `Prévia da Escala — Programada para: ${tempScaleFullDate} (Não Salva)`;
+
+        renderCardsGrid('grid-regular', tempRegularAssignments, 'regular');
+        renderCardsGrid('grid-ps', tempPsAssignments, 'ps');
+        renderCardsGrid('grid-multiplicador', tempMultAssignments, 'multiplicador');
+
+        document.getElementById('btn-save-scale').style.display = 'inline-block';
+    }
+
+    function saveCurrentScaleToHistory() {
+        if (tempRegularAssignments.length === 0 && tempPsAssignments.length === 0 && tempMultAssignments.length === 0) {
+            alert("Gere uma distribuição primeiro antes de salvar.");
+            return;
+        }
+
+        const shortDateStr = tempScaleFullDate; 
+        let allocationSnapshot = [];
+
+        tempRegularAssignments.concat(tempPsAssignments).concat(tempMultAssignments).forEach(item => {
+            allocationSnapshot.push({ name: item.name, func: item.func });
+            if (item.func !== "Apoio / Disponível") {
+                registrarEstatisticaTimeline(item.name, item.func, shortDateStr);
+            }
+        });
+
+        historyLog.unshift({ date: tempScaleFullDate, allocations: allocationSnapshot });
+        if(historyLog.length > 15) historyLog.pop(); 
+
+        saveState();
+        renderHistory();
+        updateChart();
+
+        document.getElementById('scale-date-title').innerText = `Escala de Operadores — Salva para: ${tempScaleFullDate}`;
+        document.getElementById('btn-save-scale').style.display = 'none';
+
+        alert("Escala registrada para a data escolhida com sucesso!");
+    }
+
+    function registrarEstatisticaTimeline(operatorName, functionName, dateStr) {
+        if (!statsTimeline[operatorName]) statsTimeline[operatorName] = {};
+        if (!statsTimeline[operatorName][functionName]) statsTimeline[operatorName][functionName] = [];
+        
+        if (!statsTimeline[operatorName][functionName].includes(dateStr)) {
+            statsTimeline[operatorName][functionName].push(dateStr);
+        }
+    }
+
+    function renderCardsGrid(containerId, assignments, type) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        if(assignments.length === 0) {
+            container.innerHTML = '<div class="empty-grid-msg">Nenhum operador ativo alocado neste grupo.</div>';
+            return;
+        }
+
+        assignments.forEach((item, index) => {
+            const card = document.createElement('div');
+            
+            let typeClass = '';
+            if(type === 'regular') typeClass = 'reg-card';
+            else if(type === 'ps') typeClass = 'ps-card';
+            else if(type === 'multiplicador') typeClass = 'mult-card';
+
+            card.className = `operator-item-card ${typeClass}`;
+
+            const title = document.createElement('div');
+            title.className = 'operator-name-title';
+            title.textContent = item.name;
+            card.appendChild(title);
+
+            const select = document.createElement('select');
+            select.className = 'grid-select';
+
+            const optApoio = document.createElement('option');
+            optApoio.value = "Apoio / Disponível";
+            optApoio.textContent = "Apoio / Disponível";
+            if(item.func === "Apoio / Disponível") optApoio.selected = true;
+            select.appendChild(optApoio);
+
+            // Filtragem manual para o grupo Regular (não exibe Doca e Sorter)
+            functions.forEach(f => {
+                if (type === 'regular' && (f.toLowerCase() === 'doca' || f.toLowerCase() === 'sorter')) {
+                    return; 
+                }
+                const opt = document.createElement('option');
+                opt.value = f;
+                opt.textContent = f;
+                if(f === item.func) opt.selected = true;
+                select.appendChild(opt);
+            });
+
+            select.onchange = function() {
+                const novaFuncao = select.value;
+                if(type === 'regular') tempRegularAssignments[index].func = novaFuncao;
+                else if(type === 'ps') tempPsAssignments[index].func = novaFuncao;
+                else tempMultAssignments[index].func = novaFuncao;
+            };
+
+            card.appendChild(select);
+            container.appendChild(card);
+        });
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('history-container');
+        container.innerHTML = '';
+
+        if(historyLog.length === 0) {
+            container.innerHTML = '<div style="color:#888; padding: 15px; text-align: center; font-size: 1.1rem;">Nenhuma escala salva no histórico.</div>';
+            return;
+        }
+
+        historyLog.forEach((item, index) => {
+            const historyCard = document.createElement('div');
+            historyCard.className = 'history-card';
+
+            let detailsHTML = '';
+            if (item.allocations && item.allocations.length > 0) {
+                item.allocations.forEach(alloc => {
+                    detailsHTML += `<div class="history-detail-item">👤 <strong>${alloc.name}:</strong> ${alloc.func}</div>`;
+                });
+            }
+
+            historyCard.innerHTML = `
+                <div class="history-header">
+                    <span>📅 Escala do Dia: ${item.date}</span>
+                </div>
+                <button class="btn-danger history-delete-btn" onclick="deleteHistoryItem(${index})">Excluir</button>
+                <div class="history-details-grid">
+                    ${detailsHTML}
+                </div>
+            `;
+            container.appendChild(historyCard);
+        });
+    }
+
+    function deleteHistoryItem(index) {
+        if(confirm("Tem certeza que deseja apagar este registro? Isso reajustará os dados e gráficos.")) {
+            const targetScale = historyLog[index];
+            const scaleShortDate = targetScale.date;
+
+            if(targetScale.allocations) {
+                targetScale.allocations.forEach(alloc => {
+                    const opName = alloc.name;
+                    const funcName = alloc.func;
+
+                    if(statsTimeline[opName] && statsTimeline[opName][funcName]) {
+                        statsTimeline[opName][funcName] = statsTimeline[opName][funcName].filter(d => d !== scaleShortDate);
+                    }
+                });
+            }
+
+            historyLog.splice(index, 1);
+            
+            saveState();
+            renderHistory();
+            updateChart();
+        }
+    }
+
+    function populateChartFilter() {
+        const filter = document.getElementById('chart-filter');
+        const selectedValue = filter.value;
+        filter.innerHTML = '';
+
+        operators.forEach(op => {
+            const opt = document.createElement('option');
+            opt.value = op.name;
+            opt.textContent = op.name;
+            filter.appendChild(opt);
+        });
+
+        if (selectedValue && operators.some(op => op.name === selectedValue)) {
+            filter.value = selectedValue;
+        }
+    }
+
+    function updateChart() {
+        const filterVal = document.getElementById('chart-filter').value;
+        const canvasElement = document.getElementById('analyticsChart');
+        if(!canvasElement) return;
+
+        const ctx = canvasElement.getContext('2d');
+
+        if(!filterVal) {
+            if(operators.length > 0) {
+                document.getElementById('chart-filter').value = operators[0].name;
+                updateChart();
+            }
+            return;
+        }
+
+        const userTimeline = statsTimeline[filterVal] || {};
+        const labels = functions;
+        const dataValues = labels.map(f => (userTimeline[f] ? userTimeline[f].length : 0));
+
+        const backgroundColorsArray = labels.map((_, i) => functionColors[i % functionColors.length]);
+
+        const tooltipsByFunction = labels.map(f => {
+            if(userTimeline[f] && userTimeline[f].length > 0) {
+                return "Dias: " + userTimeline[f].join(', ');
+            }
+            return "Nenhuma atuação registrada";
+        });
+
+        if(chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: `Dias por Função (${filterVal})`,
+                    data: dataValues,
+                    backgroundColor: backgroundColorsArray, 
+                    borderWidth: 0,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1, color: '#3e352e', font: { size: 14 } } },
+                    x: { ticks: { color: '#3e352e', font: { size: 13, weight: '600' } } }
+                },
+                plugins: {
+                    legend: { display: false }, 
+                    tooltip: {
+                        callbacks: {
+                            footer: function(tooltipItems) {
+                                return tooltipsByFunction[tooltipItems[0].dataIndex];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function shareImage() {
+        const element = document.getElementById('print-zone');
+        const selects = element.querySelectorAll('.grid-select');
+        
+        selects.forEach(select => {
+            const parent = select.parentNode;
+            const textSpan = document.createElement('span');
+            textSpan.textContent = "📍 " + select.value;
+            textSpan.style.fontWeight = '600';
+            textSpan.style.color = 'var(--accent-brown)';
+            textSpan.style.fontSize = '1.15rem';
+            textSpan.className = 'temp-print-text';
+            
+            select.style.display = 'none';
+            parent.appendChild(textSpan);
+        });
+
+        html2canvas(element, {
+            backgroundColor: '#ffffff',
+            scale: 2
+        }).then(canvas => {
+            element.querySelectorAll('.temp-print-text').forEach(t => t.remove());
+            selects.forEach(select => select.style.display = 'block');
+
+            const link = document.createElement('a');
+            link.download = `Escala_Completa_Lider_Andre_Rocha.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }).catch(err => {
+            alert("Erro ao exportar imagem: " + err);
+        });
+    }
+</script>
+</body>
+</html>
